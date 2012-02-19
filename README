@@ -1,0 +1,13 @@
+CaesarSolver is a program to crack Caesar Cipher encrypted ASCII text
+
+Normal Caesar solvers only consider the case of 26 keys, which represents
+only single-case alphabetic characters. But what if your text is in full
+ASCII? This will solve it for you.
+
+The program will output all 256 possible strings from the given input. Unless
+you specify a key, in which case it will only output for that key.
+
+Usage: CaesarSolver -i inputfile [-o outputFile] [-k key]
+	Read hex digits represented in ASCII from the provided file in -i
+	Decrypt it using all possible 255 keys. when -k is given, only test key
+	Output to given file, or stdout if none is given
