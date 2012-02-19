@@ -81,13 +81,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if(!isKeySet)
+	ofstream outStream;
+	if(isOutputSet)
 	{
-
-	}
-	if(!isOutputSet)
-	{
-
+		outStream.open(outputPath.c_str(), ios::out);
 	}
 	if(!isInputSet)
 	{
@@ -136,8 +133,6 @@ int main(int argc, char **argv)
 		charPair += fm_ciphertext[i];
 		charPair += fm_ciphertext[i+1];
 
-		//cout << charPair << " ";
-
 		unsigned long tmp = strtoul(charPair.c_str(), NULL, 16);
 		if(tmp > 255)
 		{
@@ -145,23 +140,53 @@ int main(int argc, char **argv)
 			return EXIT_FAILURE;
 		}
 		uf_ciphertext.push_back((char)tmp);
-		//cout << uf_ciphertext[i];
-
-		//cout << endl;
 	}
-	//cout << endl;
 
-	for(uint i = 0; i < 256; i++)
+	if(isOutputSet)
 	{
-		cout << "Key " << i << ": ";
-		for(uint j = 0; j < uf_ciphertext.size(); j++)
+		cout << "Outputting to file...\n";
+		for(uint i = 0; i < 256; i++)
 		{
-			char outChar = uf_ciphertext[j];
-			cout << Decrypt(outChar, i);
+			if(isKeySet)
+			{
+				if((uint)key != i)
+				{
+					continue;
+				}
+			}
+
+			outStream << "Key " << i << ": ";
+			for(uint j = 0; j < uf_ciphertext.size(); j++)
+			{
+				char outChar = uf_ciphertext[j];
+				outStream << Decrypt(outChar, i);
+			}
+			outStream << "\n";
 		}
-		cout << endl;
+	}
+	else
+	{
+		for(uint i = 0; i < 256; i++)
+		{
+			if(isKeySet)
+			{
+				if((uint)key != i)
+				{
+					continue;
+				}
+			}
+
+			cout << "Key " << i << ": ";
+			for(uint j = 0; j < uf_ciphertext.size(); j++)
+			{
+				char outChar = uf_ciphertext[j];
+				cout << Decrypt(outChar, i);
+			}
+			cout << endl;
+		}
 	}
 
+	outStream.close();
 	return EXIT_SUCCESS;
 }
 
