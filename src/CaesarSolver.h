@@ -10,11 +10,13 @@
 #define CAESARSOLVER_H_
 
 #include <string>
+#include <stdlib.h>
 
 using namespace std;
 
 //Prints usage tips when you screw up the command line arguments
 string Usage();
 
+char Decrypt(char inChar, uint key);
 
 #endif /* CAESARSOLVER_H_ */

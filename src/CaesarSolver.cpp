@@ -7,9 +7,11 @@
 //============================================================================
 
 #include "CaesarSolver.h"
+
 #include <iostream>
+#include <fstream>
 #include "stdio.h"
-#include <stdlib.h>
+#include <vector>
 
 int main(int argc, char **argv)
 {
@@ -25,6 +27,7 @@ int main(int argc, char **argv)
 		{
 			case 'i':
 			{
+				isInputSet = true;
 				inputPath.assign(optarg);
 				break;
 			}
@@ -93,7 +96,72 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	//Formatted ciphertext
+	//IE: It has the ASCII characters "3a" to repreesent a colon ':'
+	string fm_ciphertext;
+
+	ifstream myfile(inputPath.c_str());
+	if(myfile.is_open())
+	{
+		//Only considers the first line
+		if( myfile.good() )
+		{
+			getline(myfile, fm_ciphertext);
+		}
+		myfile.close();
+	}
+	else
+	{
+		cerr << "ERROR: Could not open input file\n";
+	}
+
+	//If there's an odd number of characters, then this is malformatted
+	if((fm_ciphertext.size() % 2) == 1)
+	{
+		cerr << "ERROR: Input has an odd number of characters, and cannot be ASCII hex\n";
+		return EXIT_FAILURE;
+	}
+
+	//Unformatted ciphertext
+	//IE: Contains the byte value of 3a to represent the colon character
+	vector<char> uf_ciphertext;
+
+	//Reserve what we should expect in terms of length
+	uf_ciphertext.reserve(fm_ciphertext.size()/2);
+
+	//For each pair of input characters (IE: each byte of input)
+	for(uint i = 0; i < fm_ciphertext.size(); i+=2)
+	{
+		string charPair;
+		charPair += fm_ciphertext[i];
+		charPair += fm_ciphertext[i+1];
+
+		//cout << charPair << " ";
+
+		unsigned long tmp = strtoul(charPair.c_str(), NULL, 16);
+		if(tmp > 255)
+		{
+			cerr << "ERROR: Bad parsing of a byte. How did this happen?\n";
+			return EXIT_FAILURE;
+		}
+		uf_ciphertext.push_back((char)tmp);
+		//cout << uf_ciphertext[i];
+
+		//cout << endl;
+	}
+	//cout << endl;
+
+	for(uint i = 0; i < 256; i++)
+	{
+		cout << "Key " << i << ": ";
+		for(uint j = 0; j < uf_ciphertext.size(); j++)
+		{
+			char outChar = uf_ciphertext[j];
+			cout << Decrypt(outChar, i);
+		}
+		cout << endl;
+	}
+
 	return EXIT_SUCCESS;
 }
 
@@ -106,4 +174,9 @@ string Usage()
 	outputString += "\tOutput to given file, or stdout if none is given\n";
 
 	return outputString;
+}
+
+char Decrypt(char inChar, uint key)
+{
+	return (inChar + key) % 256;
 }
